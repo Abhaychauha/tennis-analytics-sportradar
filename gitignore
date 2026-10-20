@@ -2,3 +2,6 @@
 __pycache__/
 *.pyc
 venv/
+tennis.sql
+rankings.sql
+.streamlit/secrets.toml
