@@ -6,11 +6,14 @@ import os
 
 import pandas as pd
 import streamlit as st
-from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import URL
 
-load_dotenv()
+try:  # .env is only for local runs; Streamlit Cloud uses Secrets instead
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 st.set_page_config(page_title="Tennis Analytics Explorer",
                    page_icon="🎾", layout="wide")
 PAGE_SIZE = 25
@@ -27,7 +30,9 @@ def get_engine():
         port=int(os.getenv("PG_PORT", "5432")),
         database=os.getenv("PG_DATABASE", "tennis_db"),
     )
-    return create_engine(url, pool_pre_ping=True)
+    ssl = os.getenv("PG_SSLMODE")          # e.g. "require" for Neon / Supabase
+    args = {"sslmode": ssl} if ssl else {}
+    return create_engine(url, pool_pre_ping=True, connect_args=args)
 
 
 @st.cache_data(ttl=300)
